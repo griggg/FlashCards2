@@ -1,1 +1,1 @@
-from . import cardSchema
+from . import card_schema

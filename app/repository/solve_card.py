@@ -11,18 +11,13 @@ class RepositoryCards():
     def __init__(self, session: Session):
         self.session = session
 
-    def get_all_cards(self, user_id: int) -> List[CardSchema]:
-        cards = self.session.query(CardModel).filter(CardModel.user_fk == user_id)
+    def add_solve_card(self):
+        pass
 
-        return [CardSchema(**cards.__dict__) for cards in cards]
+    def get_solves_by_user(self):
+        pass
 
-    def add_card(self, card: CardSchema):
-        card = CardModel(**card.model_dump(exclude_none=True))
-
-        self.session.add(card)
-        self.session.commit()
-
-    def delete_card(self):
+    def get_last_solves(self):
         pass
 
 

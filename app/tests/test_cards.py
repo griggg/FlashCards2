@@ -1,9 +1,9 @@
-from app.utils.config import configSession
+from app.utils.config import config_session_maker
 from app.repository.cards import RepositoryCards
-from app.schemas.cardSchema import CardSchema
+from app.schemas.card_schema import CardSchema
 
 def test_get_all_cards():
-    session = configSession()
+    session = config_session_maker()
 
     repository_cards = RepositoryCards(session)
     cards = repository_cards.get_all_cards(user_id=1)

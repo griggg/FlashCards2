@@ -18,7 +18,7 @@ class User(AbstractModel):
     disabled: Mapped[bool | None]
     hashed_password: Mapped[str]
     cards: Mapped[List["Card"]] = relationship(back_populates="user", uselist=True)
-    solves: Mapped[List["SolveCard"]] = relationship(back_populates="user", uselist=True)
+    solved_cards: Mapped[List["SolveCard"]] = relationship(back_populates="user", uselist=True)
 
 
 class Card(AbstractModel):
@@ -39,11 +39,11 @@ class SolveCard(AbstractModel):
     card: Mapped["Card"] = relationship(back_populates="solves", uselist=False)
     card_fk: Mapped[int] = mapped_column(ForeignKey("users.id"))
     user_fk: Mapped[int] = mapped_column(ForeignKey("cards.id"))
-
+    grade: Mapped[str] # Bad, Medium, Good, насколько хорошо знаешь
 
 if __name__ == '__main__':
-    from app.utils.config import configEngine as engine
+    from app.utils.config import config_engine as engine
 
-    # AbstractModel.metadata.drop_all(engine)
-    #
-    # AbstractModel.metadata.create_all(engine)
+    AbstractModel.metadata.drop_all(engine)
+
+    AbstractModel.metadata.create_all(engine)
