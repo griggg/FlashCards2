@@ -3,8 +3,22 @@ from typing import Optional
 from sqlalchemy.orm import as_declarative, DeclarativeBase, MappedColumn, Mapped, mapped_column, relationship
 from sqlalchemy import create_engine, ForeignKey, Column, Integer
 from typing import List
+
+
 class AbstractModel(DeclarativeBase):
-    id: Mapped[int] = MappedColumn(primary_key=True)
+    pass
+
+
+class User(AbstractModel):
+    __tablename__ = "users"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    username: Mapped[str]
+    email: Mapped[str | None]
+    full_name: Mapped[str | None]
+    disabled: Mapped[bool | None]
+    hashed_password: Mapped[str]
+    cards: Mapped[List["Card"]] = relationship(back_populates="user", uselist=True)
+    solves: Mapped[List["SolveCard"]] = relationship(back_populates="user", uselist=True)
 
 
 class Card(AbstractModel):
@@ -16,22 +30,20 @@ class Card(AbstractModel):
     category: Mapped[str]
     user: Mapped["User"] = relationship(back_populates="cards", uselist=False)
     user_fk: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    solves: Mapped["SolveCard"] = relationship(back_populates="card", uselist=True)
 
+class SolveCard(AbstractModel):
+    __tablename__ = "solves_cards"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user: Mapped["User"] = relationship(back_populates="solved_cards", uselist=False)
+    card: Mapped["Card"] = relationship(back_populates="solves", uselist=False)
+    card_fk: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    user_fk: Mapped[int] = mapped_column(ForeignKey("cards.id"))
 
-class User(AbstractModel):
-    __tablename__ = "users"
-    username: Mapped[str]
-    email: Mapped[str | None]
-    full_name: Mapped[str| None]
-    disabled: Mapped[bool | None]
-    cards: Mapped[List["Card"]] = relationship(back_populates="user", uselist=True)
-    hashed_password: Mapped[str]
 
 if __name__ == '__main__':
     from app.utils.config import configEngine as engine
 
-    AbstractModel.metadata.drop_all(engine)
-
-    AbstractModel.metadata.create_all(engine)
-
-
+    # AbstractModel.metadata.drop_all(engine)
+    #
+    # AbstractModel.metadata.create_all(engine)
