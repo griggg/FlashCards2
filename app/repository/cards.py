@@ -16,13 +16,13 @@ class RepositoryCards():
 
         return [CardSchema(**cards.__dict__) for cards in cards]
 
-    def add_card(self, card: CardSchema):
+    def add_card(self, card: CardSchema) -> None:
         card = CardModel(**card.model_dump(exclude_none=True))
 
         self.session.add(card)
         self.session.commit()
 
-    def delete_card(self):
+    def delete_card(self) -> None:
         pass
 
 

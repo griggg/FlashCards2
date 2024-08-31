@@ -34,11 +34,11 @@ def add_card(card: CardSchema, current_user: Annotated[UserSchema, Depends(get_c
 
 @cardsRouter.put("/changeCard")
 def change_card():
-
     pass
+
 
 @cardsRouter.post("/solve_card")
-def solve_card(current_user: SolveCardSchema, Annotated[UserSchema, Depends(get_current_active_user)]):
+def solve_card(data: SolveCardSchema,
+               card: CardSchema,
+               current_user: Annotated[UserSchema, Depends(get_current_active_user)]):
     pass
-
-
