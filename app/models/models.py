@@ -17,8 +17,8 @@ class User(AbstractModel):
     full_name: Mapped[str | None]
     disabled: Mapped[bool | None]
     hashed_password: Mapped[str]
-    cards: Mapped[List["Card"]] = relationship(back_populates="user", uselist=True)
-    solved_cards: Mapped[List["SolveCard"]] = relationship(back_populates="user", uselist=True)
+    cards: Mapped[List["Card"]] = relationship(back_populates="user", uselist=True, cascade="all,delete")
+    solved_cards: Mapped[List["SolveCard"]] = relationship(back_populates="user", uselist=True, cascade="all,delete")
 
 
 class Card(AbstractModel):
@@ -30,14 +30,14 @@ class Card(AbstractModel):
     category: Mapped[str]
     user: Mapped["User"] = relationship(back_populates="cards", uselist=False)
     user_fk: Mapped[int] = mapped_column(ForeignKey("users.id"))
-    solves: Mapped["SolveCard"] = relationship(back_populates="card", uselist=True)
+    solves: Mapped["SolveCard"] = relationship(back_populates="card", uselist=True, cascade="all,delete")
 
 class SolveCard(AbstractModel):
     __tablename__ = "solves_cards"
     id: Mapped[int] = mapped_column(primary_key=True)
     user: Mapped["User"] = relationship(back_populates="solved_cards", uselist=False)
     card: Mapped["Card"] = relationship(back_populates="solves", uselist=False)
-    card_fk: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    card_fk: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
     user_fk: Mapped[int] = mapped_column(ForeignKey("cards.id"))
     grade: Mapped[str] # Bad, Medium, Good, насколько хорошо знаешь
 

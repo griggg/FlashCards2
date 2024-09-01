@@ -22,8 +22,12 @@ class RepositoryCards():
         self.session.add(card)
         self.session.commit()
 
-    def delete_card(self) -> None:
-        pass
+    def delete_card(self, card_id) -> None:
+        self.session.query(CardModel).where(CardModel==card_id).delete()
+        self.session.commit()
+
+    def change_card(self, card: CardSchema):
+        self.session.query(CardModel).where(CardModel.id == card.id)
 
 
 if __name__ == '__main__':
