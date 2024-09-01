@@ -6,3 +6,6 @@ from app.schemas.users_schema import UserSchema
 #     )
 def fake_hash_password(password: str):
     return "fakehashed" + password
+
+def decode_hash_password(password: str):
+    return password.removeprefix("fakehashed")

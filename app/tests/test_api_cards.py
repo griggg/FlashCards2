@@ -20,4 +20,14 @@ class TestApiCards:
             response = client.get("cards/getAllCards", headers=headers)
         assert response.status_code == 200
 
+    def test_delete_card(self, create_fake_user, auth_fake_user, create_fake_card: dict):
+        headers = {
+            "Authorization": f"Bearer {create_fake_user["username"]}"
+        }
+        data = {
+            "card_id": create_fake_card["id"]
+        }
+        with TestClient(app) as client:
+            response = client.post("cards/delete_card", headers=headers, params=data)
+        assert response.status_code == 200
 

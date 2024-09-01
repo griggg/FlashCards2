@@ -38,11 +38,13 @@ class RepositoryUsers():
         self.session.add(data)
         self.session.commit()
 
-    def change_user(self):
-        pass
+    def change_user(self, user: UserSchema):
+        self.session.query(User).filter(User.id == user.id).update(user.model_dump(exclude_none=True))
+        self.session.commit()
 
-    def delete_user(self):
-        pass
+    def delete_user(self, user_id: int):
+        self.session.query(User).where(User.id==user_id).delete()
+        self.session.commit()
 
 
 if __name__ == '__main__':

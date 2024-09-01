@@ -89,3 +89,15 @@ def create_account(user: UserSchema):
     repository_users = RepositoryUsers(session=config_session_maker())
     repository_users.create_user(user)
     return user
+
+@app.post("/users/change_user")
+def change_user(user: UserSchema):
+    repository_users = RepositoryUsers(session=config_session_maker())
+    repository_users.change_user(user)
+    return user
+
+@app.post("/users/delete_user")
+def delete_user(user_id: int):
+    repository_users = RepositoryUsers(session=config_session_maker())
+    repository_users.delete_user(user_id)
+    return "Пользователь удалён"
