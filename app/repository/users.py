@@ -18,12 +18,10 @@ class RepositoryUsers():
         self.session.commit()
 
     def get_user_by_id(self, id: int):
-        users = self.session.query(User).where(User.id == id).all()
-        if not(users):
-            raise Exception
-        user = users[0]
-
-        return UserSchema(**user.__dict__)
+        user = self.session.query(User).where(User.id == id).one_or_none()
+        if user:
+            return UserSchema(**user.__dict__)
+        return None
 
     def get_user_by_username(self, username: str) -> UserSchema:
         user = self.session.query(User).where(User.username == username).all()

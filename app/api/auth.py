@@ -93,8 +93,11 @@ def create_account(user: UserSchema):
 @app.post("/users/change_user")
 def change_user(user: UserSchema):
     repository_users = RepositoryUsers(session=config_session_maker())
+    if not(repository_users.get_user_by_id(id=user.id)):
+        raise HTTPException(status_code=403, detail="Пользователя с таким id не существует")
     repository_users.change_user(user)
     return user
+
 
 @app.post("/users/delete_user")
 def delete_user(user_id: int):
