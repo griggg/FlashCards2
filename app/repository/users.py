@@ -18,12 +18,10 @@ class RepositoryUsers():
         self.session.commit()
 
     def get_user_by_id(self, id: int):
-        users = self.session.query(User).where(User.id == id).all()
-        if not(users):
-            raise Exception
-        user = users[0]
-
-        return UserSchema(**user.__dict__)
+        user = self.session.query(User).where(User.id == id).one_or_none()
+        if user:
+            return UserSchema(**user.__dict__)
+        return None
 
     def get_user_by_username(self, username: str) -> UserSchema:
         user = self.session.query(User).where(User.username == username).all()
@@ -38,11 +36,13 @@ class RepositoryUsers():
         self.session.add(data)
         self.session.commit()
 
-    def change_user(self):
-        pass
+    def change_user(self, user: UserSchema):
+        self.session.query(User).filter(User.id == user.id).update(user.model_dump(exclude_none=True))
+        self.session.commit()
 
-    def delete_user(self):
-        pass
+    def delete_user(self, user_id: int):
+        self.session.query(User).where(User.id==user_id).delete()
+        self.session.commit()
 
 
 if __name__ == '__main__':

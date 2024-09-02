@@ -16,14 +16,22 @@ class RepositoryCards():
 
         return [CardSchema(**cards.__dict__) for cards in cards]
 
+    def get_card_by_id(self, card_id):
+        card = self.session.query(CardModel).where(CardModel.id == card_id).one_or_none()
+        return card
+
     def add_card(self, card: CardSchema) -> None:
         card = CardModel(**card.model_dump(exclude_none=True))
 
         self.session.add(card)
         self.session.commit()
 
-    def delete_card(self) -> None:
-        pass
+    def delete_card(self, card_id) -> None:
+        self.session.query(CardModel).where(CardModel==card_id).delete()
+        self.session.commit()
+
+    def change_card(self, card: CardSchema):
+        self.session.query(CardModel).where(CardModel.id == card.id)
 
 
 if __name__ == '__main__':
@@ -32,5 +40,5 @@ if __name__ == '__main__':
     db = RepositoryCards(session=configSession())
     # cards = db.getAllCards()
     # print(cards)
-    cards = db.get_all_cards(user_id=1)
+    cards = db.get_card_by_id(user_id=1)
     print(cards)
