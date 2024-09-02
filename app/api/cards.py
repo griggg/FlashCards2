@@ -12,7 +12,7 @@ from app.schemas.card_schema import CardSchema
 from app.repository.solve_card import RepositorySolveCards
 from fastapi.encoders import jsonable_encoder
 from app.models.models import Card
-
+from fastapi import HTTPException
 from app.schemas.solved_card_schema import SolveCardSchema
 
 cardsRouter = APIRouter(prefix="/cards")
@@ -27,7 +27,10 @@ def get_all_cards(current_user: Annotated[UserSchema, Depends(get_current_active
 
 @cardsRouter.post("/addCard/", response_model=CardSchema)
 def add_card(card: CardSchema, current_user: Annotated[UserSchema, Depends(get_current_active_user)]):
+
     repository_cards = RepositoryCards(session=config_session_maker())
+    if repository_cards.get_card_by_id(card.id):
+        raise HTTPException(status_code=403, detail="Запись с таким id уже существует")
     repository_cards.add_card(card)
     return card
 
