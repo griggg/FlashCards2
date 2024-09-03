@@ -12,7 +12,7 @@ class AbstractModel(DeclarativeBase):
 class User(AbstractModel):
     __tablename__ = "users"
     id: Mapped[int] = mapped_column(primary_key=True)
-    username: Mapped[str]
+    username: Mapped[str] = mapped_column(unique=True, nullable=False)
     email: Mapped[str | None]
     full_name: Mapped[str | None]
     disabled: Mapped[bool | None]
@@ -33,6 +33,7 @@ class Card(AbstractModel):
     # ondelete="CASCADE", при удалении строки в родительской таблице users
     # удалится и запись в дочерней cards. дочерняя - та, в которой внешний ключ
     solves: Mapped["SolveCard"] = relationship(back_populates="card", uselist=True, cascade="all,delete")
+    is_private: Mapped[bool] = mapped_column(default=True)
 
 class SolveCard(AbstractModel):
     __tablename__ = "solves_cards"

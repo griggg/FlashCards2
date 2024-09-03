@@ -7,3 +7,4 @@ class CardSchema(BaseModel):
     answer: str
     category: str
     user_fk: int
+    is_private: bool=True
