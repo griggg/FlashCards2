@@ -37,7 +37,8 @@ def session() -> Session:
 @fixture()
 def create_fake_user(session: Session) -> dict:
 
-    if not(session.query(User).where(User.id == fake_user_data["id"]).all()):
+    if not(session.query(User).where(User.username == fake_user_data["username"]).all())\
+            and not(session.query(User).where(User.id == fake_user_data["id"]).all()):
         fake_user = User(**fake_user_data)
         session.add(fake_user)
         session.commit()

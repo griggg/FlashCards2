@@ -91,16 +91,22 @@ def create_account(user: UserSchema):
     return user
 
 @app.post("/users/change_user")
-def change_user(user: UserSchema):
+def change_user(user: UserSchema, current_user: Annotated[UserSchema, Depends(get_current_active_user)]):
     repository_users = RepositoryUsers(session=config_session_maker())
     if not(repository_users.get_user_by_id(id=user.id)):
         raise HTTPException(status_code=403, detail="Пользователя с таким id не существует")
+    if current_user.username != user.username:
+        print(repository_users.get_user_by_username(user.username), "log123")
+        if repository_users.get_user_by_username(user.username):
+            raise HTTPException(status_code=403, detail="Пользователя с таким именем уже существует")
+    user.hashed_password = fake_hash_password(user.hashed_password)
     repository_users.change_user(user)
     return user
 
 
 @app.post("/users/delete_user")
-def delete_user(user_id: int):
+def delete_user(user_id: int, current_user: Annotated[UserSchema, Depends(get_current_active_user)]):
     repository_users = RepositoryUsers(session=config_session_maker())
     repository_users.delete_user(user_id)
     return "Пользователь удалён"
+
