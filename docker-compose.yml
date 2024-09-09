@@ -1,0 +1,23 @@
+version: "3.7"
+
+services:
+  db:
+    image: postgres
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_DB=flashcards
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=12345
+
+  app:
+    build:
+      context: ./app/.
+    depends_on:
+      - db
+    volumes:
+      - ./app:/app/app_volume
+    ports:
+      - 8003:8061
+
+

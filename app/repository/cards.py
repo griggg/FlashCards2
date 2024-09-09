@@ -2,8 +2,8 @@ from fastapi.encoders import jsonable_encoder
 from sqlalchemy import select, text
 from sqlalchemy.orm import Session, sessionmaker
 from typing import List
-from app.schemas.card_schema import CardSchema
-from app.models.models import Card as CardModel, User as UserModel
+from schemas.card_schema import CardSchema
+from models.models import Card as CardModel, User as UserModel
 from sqlalchemy import insert, and_
 
 

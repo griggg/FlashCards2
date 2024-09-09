@@ -45,7 +45,7 @@ class SolveCard(AbstractModel):
     grade: Mapped[str] # Bad, Medium, Good, насколько хорошо знаешь
 
 if __name__ == '__main__':
-    from app.utils.config import config_engine as engine
+    from utils.config import config_engine as engine
 
     AbstractModel.metadata.drop_all(engine)
 

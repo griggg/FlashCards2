@@ -2,11 +2,11 @@ from fastapi.encoders import jsonable_encoder
 from sqlalchemy import select, text
 from sqlalchemy.orm import Session, sessionmaker
 from typing import List
-from app.schemas.card_schema import CardSchema
-from app.models.models import Card as CardModel, User as UserModel
+from schemas.card_schema import CardSchema
+from models.models import Card as CardModel, User as UserModel
 from sqlalchemy import insert
-from app.schemas.solved_card_schema import SolveCardSchema
-from app.models.models import SolveCard
+from schemas.solved_card_schema import SolveCardSchema
+from models.models import SolveCard
 
 class RepositorySolveCards():
     def __init__(self, session: Session):
@@ -22,7 +22,7 @@ class RepositorySolveCards():
 
 
 if __name__ == '__main__':
-    from app.utils.config import configSession
+    from utils.config import configSession
 
     db = RepositorySolveCards(session=configSession())
     # cards = db.getAllCards()

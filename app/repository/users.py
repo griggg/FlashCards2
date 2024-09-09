@@ -2,10 +2,10 @@ from sqlalchemy import select, text
 from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy import insert
 from typing import List
-from app.schemas.users_schema import UserSchema as UserSchema
-from app.models.models import User
+from schemas.users_schema import UserSchema as UserSchema
+from models.models import User
 
-from app.utils.crypto import fake_hash_password
+from utils.crypto import fake_hash_password
 
 class RepositoryUsers():
     def __init__(self, session: Session):
@@ -46,7 +46,7 @@ class RepositoryUsers():
 
 
 if __name__ == '__main__':
-    from app.utils.config import configSession
+    from utils.config import configSession
 
     db = configSession()
 

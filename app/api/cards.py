@@ -1,19 +1,19 @@
 from fastapi import APIRouter, Depends
-from app.repository.cards import RepositoryCards
-from app.utils.config import config_session_maker
+from repository.cards import RepositoryCards
+from utils.config import config_session_maker
 from typing import List, Annotated
-from app.schemas.card_schema import CardSchema
-from app.schemas.users_schema import UserSchema
+from schemas.card_schema import CardSchema
+from schemas.users_schema import UserSchema
 # from app.utils.crypto import fake_decode_token
 
 from fastapi.security import OAuth2PasswordBearer
-from app.api.auth import get_current_active_user
-from app.schemas.card_schema import CardSchema
-from app.repository.solve_card import RepositorySolveCards
+from api.auth import get_current_active_user
+from schemas.card_schema import CardSchema
+from repository.solve_card import RepositorySolveCards
 from fastapi.encoders import jsonable_encoder
-from app.models.models import Card
+from models.models import Card
 from fastapi import HTTPException
-from app.schemas.solved_card_schema import SolveCardSchema
+from schemas.solved_card_schema import SolveCardSchema
 
 cardsRouter = APIRouter(prefix="/cards")
 

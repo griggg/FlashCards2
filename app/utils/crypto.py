@@ -1,4 +1,4 @@
-from app.schemas.users_schema import UserSchema
+from schemas.users_schema import UserSchema
 
 # def fake_decode_token(token):
 #     return UserSchema(

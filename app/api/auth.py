@@ -5,11 +5,11 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from pydantic import BaseModel
 from fastapi import APIRouter
 
-from app.schemas.users_schema import UserSchema
-from app.repository.users import RepositoryUsers
-from app.utils.config import config_session_maker
+from schemas.users_schema import UserSchema
+from repository.users import RepositoryUsers
+from utils.config import config_session_maker
 
-from app.utils.crypto import fake_hash_password
+from utils.crypto import fake_hash_password
 
 authRouter = APIRouter(prefix="")
 # если префикс указать другой, то авторизация как то не работает
