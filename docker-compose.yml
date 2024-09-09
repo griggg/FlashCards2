@@ -2,22 +2,27 @@ version: "3.7"
 
 services:
   db:
+    container_name: db
     image: postgres
+    expose:
+      - 5432
     ports:
       - 5432:5432
-    environment:
-      - POSTGRES_DB=flashcards
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=12345
+    env_file:
+      - utils/.env
 
   app:
-    build:
-      context: ./app/.
     depends_on:
       - db
+    container_name: app
+    build:
+      context: ./app/.
+
+    env_file:
+      - app/utils/.env
+    environment:
+      - DB_HOST=db
     volumes:
       - ./app:/app/app_volume
     ports:
       - 8003:8061
-
-

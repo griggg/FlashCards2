@@ -63,16 +63,15 @@ async def get_current_active_user(
 @app.post("/token")
 async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
     repository_users = RepositoryUsers(session=config_session_maker())
-    user_dict = repository_users.get_user_by_username(form_data.username).model_dump(exclude_none=True)
-    if not user_dict:
+    user: UserSchema | None = repository_users.get_user_by_username(form_data.username)
+    if not user:
         raise HTTPException(status_code=400, detail="Incorrect username or password")
-    user = UserSchema(**user_dict)
     hashed_password = fake_hash_password(form_data.password)
     if not hashed_password == user.hashed_password:
         raise HTTPException(status_code=400, detail="Incorrect username or password")
 
     repository_users = RepositoryUsers(session=config_session_maker())
-    repository_users.set_user_active(id=user_dict["id"])
+    repository_users.set_user_active(id=user.id)
 
     return {"access_token": user.username, "token_type": "bearer"}
 
