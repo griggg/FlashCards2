@@ -7,7 +7,7 @@ from fastapi import APIRouter
 
 from schemas.users_schema import UserSchema
 from repository.users import RepositoryUsers
-from utils.config import config_session_maker
+from utils.config import config_session
 
 from utils.crypto import fake_hash_password
 
@@ -28,7 +28,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
 def get_user(username) -> UserSchema:
-    repository_users = RepositoryUsers(session=config_session_maker())
+    repository_users = RepositoryUsers(session=config_session)
     user = repository_users.get_user_by_username(username)
     print("user1", user)
     if user:
@@ -62,7 +62,7 @@ async def get_current_active_user(
 
 @app.post("/token")
 async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
-    repository_users = RepositoryUsers(session=config_session_maker())
+    repository_users = RepositoryUsers(session=config_session)
     user: UserSchema | None = repository_users.get_user_by_username(form_data.username)
     if not user:
         raise HTTPException(status_code=400, detail="Incorrect username or password")
@@ -70,7 +70,7 @@ async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
     if not hashed_password == user.hashed_password:
         raise HTTPException(status_code=400, detail="Incorrect username or password")
 
-    repository_users = RepositoryUsers(session=config_session_maker())
+    repository_users = RepositoryUsers(session=config_session)
     repository_users.set_user_active(id=user.id)
 
     return {"access_token": user.username, "token_type": "bearer"}
@@ -85,13 +85,16 @@ async def read_users_me(
 @app.post("/users/create_account")
 def create_account(user: UserSchema):
     # в форму передаёшь обычный пароль, на сервере он хэшируется
-    repository_users = RepositoryUsers(session=config_session_maker())
+    repository_users = RepositoryUsers(session=config_session)
+    if repository_users.get_user_by_id(user.id):
+        raise HTTPException(status_code=403, detail="Пользователь с таким id уже есть")
+
     repository_users.create_user(user)
     return user
 
 @app.post("/users/change_user")
 def change_user(user: UserSchema, current_user: Annotated[UserSchema, Depends(get_current_active_user)]):
-    repository_users = RepositoryUsers(session=config_session_maker())
+    repository_users = RepositoryUsers(session=config_session)
     if not(repository_users.get_user_by_id(id=user.id)):
         raise HTTPException(status_code=403, detail="Пользователя с таким id не существует")
     if current_user.username != user.username:
@@ -105,7 +108,7 @@ def change_user(user: UserSchema, current_user: Annotated[UserSchema, Depends(ge
 
 @app.post("/users/delete_user")
 def delete_user(user_id: int, current_user: Annotated[UserSchema, Depends(get_current_active_user)]):
-    repository_users = RepositoryUsers(session=config_session_maker())
+    repository_users = RepositoryUsers(session=config_session)
     repository_users.delete_user(user_id)
     return "Пользователь удалён"
 
