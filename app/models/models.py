@@ -3,10 +3,13 @@ from typing import Optional
 from sqlalchemy.orm import as_declarative, DeclarativeBase, MappedColumn, Mapped, mapped_column, relationship
 from sqlalchemy import create_engine, ForeignKey, Column, Integer
 from typing import List
+from sqlalchemy.ext.declarative import declarative_base
 
 
-class AbstractModel(DeclarativeBase):
-    pass
+AbstractModel = declarative_base()
+
+# class AbstractModel(DeclarativeBase):
+#     pass
 
 
 class User(AbstractModel):

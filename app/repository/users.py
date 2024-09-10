@@ -1,7 +1,7 @@
 from sqlalchemy import select, text
 from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy import insert
-from typing import List
+from typing import List, Union
 from schemas.users_schema import UserSchema as UserSchema
 from models.models import User
 
@@ -17,7 +17,7 @@ class RepositoryUsers():
         self.session.add(user)
         self.session.commit()
 
-    def get_user_by_id(self, id: int):
+    def get_user_by_id(self, id: int) -> Union[UserSchema, None]:
         user = self.session.query(User).where(User.id == id).one_or_none()
         if user:
             return UserSchema(**user.__dict__)

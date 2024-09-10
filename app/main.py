@@ -4,7 +4,7 @@ from uvicorn import run
 from api.cards import cardsRouter
 from contextlib import asynccontextmanager
 from models.models import AbstractModel
-from utils.config import config_session_maker, config_engine
+from utils.config import config_engine
 from api.auth import authRouter
 
 
@@ -22,4 +22,5 @@ app.include_router(authRouter, tags=["Auth"])
 
 if __name__ == '__main__':
 
-    run(app, host="0.0.0.0", port=8061)
+    # run(app, host="0.0.0.0", port=8061)
+    run(app, host="localhost", port=8061)
