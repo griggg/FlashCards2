@@ -31,11 +31,13 @@ class RepositoryCards():
         self.session.commit()
 
     def delete_card(self, card_id) -> None:
-        self.session.query(CardModel).where(CardModel==card_id).delete()
+        self.session.query(CardModel).where(CardModel.id==card_id).delete()
         self.session.commit()
 
-    def change_card(self, card: CardSchema):
-        self.session.query(CardModel).where(CardModel.id == card.id)
+    def change_card(self, new_card: CardSchema):
+        card = self.session.query(CardModel).where(CardModel.id == new_card.id)
+        self.session.query(card.update(new_card.model_dump(exclude_none=True)))
+        self.session.commit()
 
 
 if __name__ == '__main__':

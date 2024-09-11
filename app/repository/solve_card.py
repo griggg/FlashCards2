@@ -18,8 +18,11 @@ class RepositorySolveCards():
 
     def get_solves_by_user(self, user_id: int) -> List[SolveCardSchema]:
         solves = self.session.query(SolveCard).where(SolveCard.user_fk == user_id).all()
-        return [SolveCardSchema(**solve) for solve in solves]
+        return [SolveCardSchema(**solve.__dict__) for solve in solves]
 
+    def get_solve_by_id(self, solve_id: int) -> SolveCardSchema | None:
+        solve = self.session.query(SolveCard).where(SolveCard.id == solve_id).one_or_none()
+        return solve
 
 if __name__ == '__main__':
     from utils.config import configSession

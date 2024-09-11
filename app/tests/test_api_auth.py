@@ -2,6 +2,7 @@ from fastapi.testclient import TestClient
 from main import app
 from random import randint
 from repository.users import RepositoryUsers
+from repository.cards import RepositoryCards
 from schemas.users_schema import UserSchema
 import pytest
 from utils.config import config_engine, config_session
@@ -37,6 +38,7 @@ def test_create_user(db_session, user):
 
 def test_login(db_session, client):
     repository_users = RepositoryUsers(session=db_session)
+
     user_schema = UserSchema(**user)
     user_schema.disabled = True
     repository_users.create_user(user=user_schema)

@@ -1,3 +1,5 @@
 garbage
 .idea
 .env
+log.txt
+__pycache__

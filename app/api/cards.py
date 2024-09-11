@@ -19,7 +19,7 @@ cardsRouter = APIRouter(prefix="/cards")
 
 
 @cardsRouter.get("/getAllCards/", response_model=List[CardSchema])
-def get_all_cards_by_user(author_id, current_user: Annotated[UserSchema, Depends(get_current_active_user)]):
+def get_all_cards_by_user(author_id: int, current_user: Annotated[UserSchema, Depends(get_current_active_user)]):
     """ Возвращает все свои/чужие карточки """
     repository_cards = RepositoryCards(session=config_session)
     if author_id == current_user.id:
