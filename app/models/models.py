@@ -4,12 +4,11 @@ from sqlalchemy.orm import as_declarative, DeclarativeBase, MappedColumn, Mapped
 from sqlalchemy import create_engine, ForeignKey, Column, Integer
 from typing import List
 from sqlalchemy.ext.declarative import declarative_base
+from datetime import datetime
 
 
-AbstractModel = declarative_base()
-
-# class AbstractModel(DeclarativeBase):
-#     pass
+class AbstractModel(DeclarativeBase):
+    pass
 
 
 class User(AbstractModel):
@@ -22,6 +21,7 @@ class User(AbstractModel):
     hashed_password: Mapped[str]
     cards: Mapped[List["Card"]] = relationship(back_populates="user", uselist=True, cascade="all,delete")
     solved_cards: Mapped[List["SolveCard"]] = relationship(back_populates="user", uselist=True, cascade="all,delete")
+    favorite_cards: Mapped["FavoriteCard"] = relationship(back_populates="user", uselist=True, cascade="all,delete")
 
 
 class Card(AbstractModel):
@@ -37,6 +37,7 @@ class Card(AbstractModel):
     # удалится и запись в дочерней cards. дочерняя - та, в которой внешний ключ
     solves: Mapped["SolveCard"] = relationship(back_populates="card", uselist=True, cascade="all,delete")
     is_private: Mapped[bool] = mapped_column(default=True)
+    favorites: Mapped["FavoriteCard"] = relationship(back_populates="card", uselist=True, cascade="all,delete")
 
 class SolveCard(AbstractModel):
     __tablename__ = "solves_cards"
@@ -46,6 +47,15 @@ class SolveCard(AbstractModel):
     card_fk: Mapped[int] = mapped_column(ForeignKey("cards.id", ondelete="CASCADE"))
     user_fk: Mapped[int] = mapped_column(ForeignKey("users.id"))
     grade: Mapped[str] # Bad, Medium, Good, насколько хорошо знаешь
+
+class FavoriteCard(AbstractModel):
+    __tablename__ = "favorite_cards"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user: Mapped["User"] = relationship(back_populates="favorite_cards", uselist=False)
+    card: Mapped["Card"] = relationship(back_populates="favorites", uselist=False)
+    card_fk: Mapped[int] = mapped_column(ForeignKey("cards.id", ondelete="CASCADE"))
+    user_fk: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    created: Mapped[datetime] = mapped_column(default=datetime.utcnow)
 
 if __name__ == '__main__':
     from utils.config import config_engine as engine
