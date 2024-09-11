@@ -12,25 +12,14 @@ from utils.config import config_session
 from utils.crypto import fake_hash_password
 
 authRouter = APIRouter(prefix="")
-# если префикс указать другой, то авторизация как то не работает
-# хз почему, так надо почитать чужие проекты и в доке написано много интересного
-
 
 app = authRouter
 
-
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
-
-# def get_user(db, username: str):
-#     if username in db:
-#         user_dict = db[username]
-#         return UserInDB(**user_dict)
-
 
 def get_user(username) -> UserSchema:
     repository_users = RepositoryUsers(session=config_session)
     user = repository_users.get_user_by_username(username)
-    print("user1", user)
     if user:
         return user
 
@@ -98,7 +87,6 @@ def change_user(user: UserSchema, current_user: Annotated[UserSchema, Depends(ge
     if not(repository_users.get_user_by_id(id=user.id)):
         raise HTTPException(status_code=403, detail="Пользователя с таким id не существует")
     if current_user.username != user.username:
-        print(repository_users.get_user_by_username(user.username), "log123")
         if repository_users.get_user_by_username(user.username):
             raise HTTPException(status_code=403, detail="Пользователя с таким именем уже существует")
     user.hashed_password = fake_hash_password(user.hashed_password)
@@ -109,6 +97,9 @@ def change_user(user: UserSchema, current_user: Annotated[UserSchema, Depends(ge
 @app.post("/users/delete_user")
 def delete_user(user_id: int, current_user: Annotated[UserSchema, Depends(get_current_active_user)]):
     repository_users = RepositoryUsers(session=config_session)
+
+    if user_id != current_user.id:
+        return HTTPException(status_code=403, detail="Невозможно удалить аккаунт другого пользователя")
     repository_users.delete_user(user_id)
     return "Пользователь удалён"
 

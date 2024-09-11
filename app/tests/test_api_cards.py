@@ -1,13 +1,18 @@
+import datetime
+
 import pytest
 from repository.cards import RepositoryCards
 from repository.solve_card import RepositorySolveCards
 from repository.users import RepositoryUsers
 from random import randint
+
+from schemas.favorite_card import FavoriteCardSchema
 from schemas.users_schema import UserSchema
 from schemas.card_schema import CardSchema
 import os
 from fastapi.testclient import TestClient
 from main import app
+from repository.favorite_cards import RepositoryFavoriteCards
 
 user_id = randint(10 ** 8, 10 ** 9)
 user_id2 = randint(10 ** 7, 10 ** 8)
@@ -138,10 +143,8 @@ def test_delete_card(db_session, client, add_active_user, add_card):
     assert not (repository_cards.get_card_by_id(add_card.id))
 
 
-def test_solve_card(db_session, client, add_active_user, add_card):
-    auth = {
-        "Authorization": f"Bearer {add_active_user.username}"
-    }
+def test_solve_card(db_session, client, add_active_user, add_card, auth):
+
     solve_of_card = {
         "id": 0,
         "card_fk": add_card.id,
@@ -155,11 +158,47 @@ def test_solve_card(db_session, client, add_active_user, add_card):
     assert repository_solve_card.get_solve_by_id(solve_of_card["id"])
 
 
-def test_get_solves_by_user(db_session, client, add_active_user, add_card, add_solve):
-    auth = {
-        "Authorization": f"Bearer {add_active_user.username}"
-    }
+def test_get_solves_by_user(db_session, client, add_active_user, add_card, add_solve, auth):
 
-    response = client.post(url="/cards/get_solves_by_user", headers=auth)
+    response = client.get(url="/cards/get_solves_by_user", headers=auth)
     assert response.status_code == 200
     assert len(response.json()) == 1
+
+def test_add_card_to_favorite(db_session, client, add_active_user, add_card, auth):
+    fav_card = {
+      "id": 0,
+      "card_fk": add_card.id,
+      "user_fk": add_active_user.id,
+      "created": str(datetime.datetime.now())
+    }
+    response = client.post(url="/cards/add_card_to_favorite", headers=auth, json=fav_card)
+    assert response.status_code == 200
+
+    repository_fav_cards = RepositoryFavoriteCards(session=db_session)
+    assert repository_fav_cards.get_favorite_card(user_id=add_active_user.id, card_id=add_card.id)
+
+def test_delete_card_from_favorite(db_session, client, add_active_user, add_card, add_favorite_card, auth):
+    data = {
+        "card_id": add_card.id
+    }
+    response = client.post(url="/cards/delete_favorite_card", headers=auth, params=data)
+    assert response.status_code == 200
+
+    repository_fav_cards = RepositoryFavoriteCards(session=db_session)
+    assert not(repository_fav_cards.get_favorite_card(user_id=add_active_user.id, card_id=add_card.id))
+
+def test_get_favorite_cards(db_session, client, add_active_user, add_card, add_favorite_card, auth):
+    data = {
+        "user_id": add_active_user.id
+    }
+    response = client.get(url="/cards/get_favorite_cards", headers=auth, params=data)
+    assert response.status_code == 200
+    fav_cards_by_user = response.json()
+    assert  type(fav_cards_by_user) == list
+
+    repository_fav_cards = RepositoryFavoriteCards(session=db_session)
+    for fav_card in fav_cards_by_user:
+        fav_card = FavoriteCardSchema(**fav_card)
+        assert repository_fav_cards.get_favorite_card(user_id=fav_card.user_fk, card_id=fav_card.card_fk)
+
+

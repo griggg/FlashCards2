@@ -14,9 +14,10 @@ from fastapi.encoders import jsonable_encoder
 from models.models import Card
 from fastapi import HTTPException
 from schemas.solved_card_schema import SolveCardSchema
+from repository.favorite_cards import RepositoryFavoriteCards
+from schemas.favorite_card import FavoriteCardSchema
 
 cardsRouter = APIRouter(prefix="/cards")
-
 
 @cardsRouter.get("/getAllCards/", response_model=List[CardSchema])
 def get_all_cards_by_user(author_id: int, current_user: Annotated[UserSchema, Depends(get_current_active_user)]):
@@ -45,9 +46,10 @@ def add_card(card: CardSchema, current_user: Annotated[UserSchema, Depends(get_c
 @cardsRouter.put("/change_card")
 def change_card(card: CardSchema, current_user: Annotated[UserSchema, Depends(get_current_active_user)]):
     """ Изменяет карточку """
+    repository_card = RepositoryCards(session=config_session)
+
     if card.user_fk != current_user.id:
         raise HTTPException(status_code=403, detail="Пользователь не может менять чужие карточки")
-    repository_card = RepositoryCards(session=config_session)
     repository_card.change_card(card)
     return card
 
@@ -56,8 +58,7 @@ def delete_card(card_id, current_user: Annotated[UserSchema, Depends(get_current
     """ Удаляет карточку """
     repository_card = RepositoryCards(session=config_session)
     card = repository_card.get_card_by_id(card_id=card_id)
-    # with open("log.txt", "w", encoding="utf-8") as file:
-    #     file.write(f"{card.user_fk}, {current_user.id}, \n")
+
     if card.user_fk != current_user.id:
         raise HTTPException(status_code=403, detail="Пользователь не может удалять чужие карточки")
     repository_card.delete_card(card_id)
@@ -71,7 +72,7 @@ def solve_card(solve_card: SolveCardSchema,
     repository_solve_card.add_solve_card(solve_card)
     return solve_card
 
-@cardsRouter.post("/get_solves_by_user")
+@cardsRouter.get("/get_solves_by_user")
 def get_solves_by_user(current_user: Annotated[UserSchema, Depends(get_current_active_user)]):
     """ возвращает все решения авторизованного пользователя """
 
@@ -79,3 +80,38 @@ def get_solves_by_user(current_user: Annotated[UserSchema, Depends(get_current_a
     return repository_solve_card.get_solves_by_user(current_user.id)
 
 
+@cardsRouter.post("/add_card_to_favorite")
+def add_card_to_favorite(favorite_card: FavoriteCardSchema, current_user: Annotated[UserSchema, Depends(get_current_active_user)]):
+    """ Добавляет карточку в избранное """
+    repository_card = RepositoryCards(session=config_session)
+    repository_favorite_cards = RepositoryFavoriteCards(session=config_session)
+
+    card = repository_card.get_card_by_id(favorite_card.card_fk)
+    if not card:
+        return HTTPException(status_code=403, detail="Карточки с таким id не существует")
+
+    if favorite_card.user_fk != current_user.id:
+        raise HTTPException(status_code=403, detail="Вы не можете добавить карточку в избранное для другого пользователя")
+
+    if card.user_fk != current_user.id:
+        if card.is_private == True:
+            raise HTTPException(status_code=403, detail="Эта карточка не доступна для вас")
+
+
+    repository_favorite_cards.add_favorite_card(favorite_card)
+    return f"Карточка {favorite_card.card_fk=} добавленая в избранное для пользователя {favorite_card.user_fk}"
+
+@cardsRouter.post("/delete_favorite_card")
+def delete_card_from_favorite(card_id: int, current_user: Annotated[UserSchema, Depends(get_current_active_user)]):
+    """ Удаляет карточку из избранных для пользователя """
+    # Удаляет favorite card, у которого fav_card.user_fk == current_user.id и card_id == fav_card.card_fk
+    repository_favorite_cards = RepositoryFavoriteCards(session=config_session)
+    repository_favorite_cards.delete_favorite_card(card_id=card_id, user_id=current_user.id)
+    return f"Карточка {card_id=} удалена из избранного для пользователя {current_user.id}"
+
+@cardsRouter.get("/get_favorite_cards")
+def get_favorite_cards(user_id: int):
+    """ Возвращает список избранных карточек пользователя """
+    repository_favorite_cards = RepositoryFavoriteCards(session=config_session)
+    fav_cards_by_user = repository_favorite_cards.get_favorite_cards_by_user(user_id=user_id)
+    return fav_cards_by_user
