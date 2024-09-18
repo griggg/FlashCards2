@@ -35,7 +35,6 @@ services:
     container_name: app
     build:
       context: ./app/.
-
     env_file:
       - app/utils/.env
     environment:
@@ -46,6 +45,8 @@ services:
       - ./app:/app/app_volume
     ports:
       - 8003:8061
+#    command: ["/app/app_runned.sh"]
+
 
   link_maker_redis:
     container_name: link_maker_redis
