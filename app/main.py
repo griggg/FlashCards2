@@ -6,7 +6,7 @@ from contextlib import asynccontextmanager
 from models.models import AbstractModel
 from utils.config import config_engine
 from api.auth import authRouter
-
+from utils.config import APP_HOST
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -21,5 +21,5 @@ app.include_router(cardsRouter, tags=["Cards"])
 app.include_router(authRouter, tags=["Auth"])
 
 if __name__ == '__main__':
-    run(app, host="0.0.0.0", port=8061)  # docker
+    run(app, host=APP_HOST, port=8061)  # docker 0.0.0.0 | localhost
     # run(app, host="localhost", port=8061)  # localhost

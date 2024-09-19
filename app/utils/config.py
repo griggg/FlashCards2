@@ -16,6 +16,8 @@ DB_TEST_USER = os.getenv("DB_TEST_USER")
 DB_TEST_PASSWORD = os.getenv("DB_TEST_PASSWORD")
 DB_TEST_HOST = os.getenv("DB_TEST_HOST")
 
+APP_HOST = os.getenv("APP_HOST")
+
 REDIS_HOST = os.getenv("REDIS_HOST")
 
 MODE = "TEST"
