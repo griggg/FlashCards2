@@ -1,12 +1,14 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 
 class UserSchema(BaseModel):
     id: int
     username: str
-    email: str | None = None
+    email: EmailStr = "example@gmail.com"
     full_name: str | None = None
     disabled: bool | None = None
     hashed_password: str
+
+
 
 
 

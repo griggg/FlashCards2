@@ -1,5 +1,6 @@
 garbage
 .idea
-.env
+#.env
 log.txt
 __pycache__/
+fixtures.py

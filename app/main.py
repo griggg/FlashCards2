@@ -14,13 +14,12 @@ async def lifespan(app: FastAPI):
     yield
     # Clean up the ML models and release the resources
 
+
 app = FastAPI(lifespan=lifespan)
 
 app.include_router(cardsRouter, tags=["Cards"])
 app.include_router(authRouter, tags=["Auth"])
 
-
 if __name__ == '__main__':
-
-    # run(app, host="0.0.0.0", port=8061)
-    run(app, host="localhost", port=8061)
+    run(app, host="0.0.0.0", port=8061)  # docker
+    # run(app, host="localhost", port=8061)  # localhost
