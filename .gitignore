@@ -3,3 +3,4 @@ garbage
 #.env
 log.txt
 __pycache__/
+fixtures.py

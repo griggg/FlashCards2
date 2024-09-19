@@ -15,6 +15,7 @@ from fastapi import HTTPException
 from schemas.solved_card_schema import SolveCardSchema
 from repository.favorite_cards import RepositoryFavoriteCards
 from schemas.favorite_card import FavoriteCardSchema
+from repository.users import RepositoryUsers
 from utils.config import REDIS_HOST
 import redis
 from utils.link_maker import make_link_by_id
@@ -26,6 +27,11 @@ cardsRouter = APIRouter(prefix="/cards")
 def get_all_cards_by_user(author_id: int, current_user: Annotated[UserSchema, Depends(get_current_active_user)]):
     """ Возвращает все свои/чужие карточки """
     repository_cards = RepositoryCards(session=config_session)
+    repository_users = RepositoryUsers(session=config_session)
+
+    if repository_users.get_user_by_id(author_id) is None:
+        raise HTTPException(status_code=404, detail="Пользователя с таким id не существует")
+
     if author_id == current_user.id:
         cards = repository_cards.get_all_cards_by_user(author_id=author_id)
     else:
@@ -66,6 +72,12 @@ def delete_card(card_id, current_user: Annotated[UserSchema, Depends(get_current
     if card.user_fk != current_user.id:
         raise HTTPException(status_code=403, detail="Пользователь не может удалять чужие карточки")
     repository_card.delete_card(card_id)
+
+    # удаляем shareLink на карточку, если есть
+    redis_con = redis.Redis(host=REDIS_HOST, port=6379)
+    link = make_link_by_id(card_id=card_id)
+    redis_con.delete(link)
+
     return f"{card_id=} карточка удалена"
 
 
@@ -95,7 +107,7 @@ def add_card_to_favorite(favorite_card: FavoriteCardSchema,
 
     card = repository_card.get_card_by_id(favorite_card.card_fk)
     if not card:
-        return HTTPException(status_code=400, detail="Карточки с таким id не существует")
+        return HTTPException(status_code=404, detail="Карточки с таким id не существует")
 
     if favorite_card.user_fk != current_user.id:
         raise HTTPException(status_code=403,
@@ -137,12 +149,12 @@ def get_card_by_link(link: str,
     if card_id:
         card_id = card_id.decode("utf-8")
     else:
-        raise HTTPException(status_code=400, detail="По этой ссылке карточек не найдено")
+        raise HTTPException(status_code=404, detail="По этой ссылке карточек не найдено")
 
     card = repository_card.get_card_by_id(card_id=card_id)
     if repository_card.get_card_by_id(card_id=card_id) is None:
         # если мы удалили карточку, то мы хотим чтобы в редисе удалилась ссылка на неё
-        raise HTTPException(status_code=400, detail="Карточки с таким id не существует")
+        raise HTTPException(status_code=404, detail="Карточки с таким id не существует")
     return card
 
 
@@ -159,5 +171,5 @@ def make_link_to_card(card_id: int,
         redis_con.set(link, card_id)
         redis_con.expire(link, time_expire_sec)
     else:
-        raise HTTPException(status_code=400, detail="Карточка с таким id не найдена")
+        raise HTTPException(status_code=404, detail="Карточка с таким id не найдена")
     return link
