@@ -138,6 +138,7 @@ def test_delete_card(db_session, client, add_active_user, add_card):
         "card_id": add_card.id
     }
     response = client.post(url="/cards/delete_card", headers=auth, params=data)
+    print(response.text)
     assert response.status_code == 200
     repository_cards = RepositoryCards(session=db_session)
     assert not (repository_cards.get_card_by_id(add_card.id))

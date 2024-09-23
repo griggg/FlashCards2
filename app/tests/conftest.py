@@ -2,6 +2,7 @@ from datetime import datetime
 from random import randint
 
 import pytest
+import redis
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
@@ -12,18 +13,25 @@ from repository.users import RepositoryUsers
 from schemas.card_schema import CardSchema
 from schemas.solved_card_schema import SolveCardSchema
 from schemas.users_schema import UserSchema
-from utils.config import url
+from utils.config import url, REDIS_HOST
 from models.models import AbstractModel
 from fastapi.testclient import TestClient
 from main import app
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 from schemas.favorite_card import FavoriteCardSchema
+from utils.config import get_redis_con
+
 
 config_engine = create_engine(url)
 AbstractModel.metadata.drop_all(config_engine)
 AbstractModel.metadata.create_all(config_engine)
 
+
+@pytest.fixture(scope="session")
+def redis_con():
+    redis_con = get_redis_con()
+    return redis_con
 
 @pytest.fixture(autouse=True, scope='function')
 def db_engine():
