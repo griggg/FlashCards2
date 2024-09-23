@@ -19,6 +19,7 @@ from repository.users import RepositoryUsers
 from utils.config import REDIS_HOST
 import redis
 from utils.link_maker import make_link_by_id
+from utils.config import get_redis_con
 
 cardsRouter = APIRouter(prefix="/cards")
 
@@ -64,7 +65,8 @@ def change_card(card: CardSchema, current_user: Annotated[UserSchema, Depends(ge
 
 
 @cardsRouter.post("/delete_card", response_model=str)
-def delete_card(card_id, current_user: Annotated[UserSchema, Depends(get_current_active_user)]):
+def delete_card(card_id, current_user: Annotated[UserSchema, Depends(get_current_active_user)],
+                redis_con=Depends(get_redis_con)):
     """ Удаляет карточку """
     repository_card = RepositoryCards(session=config_session)
     card = repository_card.get_card_by_id(card_id=card_id)
@@ -74,7 +76,6 @@ def delete_card(card_id, current_user: Annotated[UserSchema, Depends(get_current
     repository_card.delete_card(card_id)
 
     # удаляем shareLink на карточку, если есть
-    redis_con = redis.Redis(host=REDIS_HOST, port=6379)
     link = make_link_by_id(card_id=card_id)
     redis_con.delete(link)
 
@@ -161,12 +162,12 @@ def get_card_by_link(link: str,
 @cardsRouter.post("/make_link_to_card/", response_model=str)
 def make_link_to_card(card_id: int,
                       current_user: Annotated[UserSchema, Depends(get_current_active_user)],
-                      time_expire_sec: int = 10**4
+                      redis_con=Depends(get_redis_con),
+                      time_expire_sec: int = 10 ** 4
                       ):
     """ Создаёт ссылку на карточку, по которой другие пользователи смогут её посмотреть """
     repository_card = RepositoryCards(session=config_session)
     if repository_card.get_card_by_id(card_id=card_id):
-        redis_con = redis.Redis(host=REDIS_HOST, port=6379)
         link = make_link_by_id(card_id=card_id)
         redis_con.set(link, card_id)
         redis_con.expire(link, time_expire_sec)

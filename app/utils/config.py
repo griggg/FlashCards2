@@ -4,6 +4,9 @@ from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
 import os
 
+
+import redis
+
 load_dotenv()
 
 DB_USER = os.getenv("DB_USER")
@@ -19,6 +22,7 @@ DB_TEST_HOST = os.getenv("DB_TEST_HOST")
 APP_HOST = os.getenv("APP_HOST")
 
 REDIS_HOST = os.getenv("REDIS_HOST")
+REDIS_PORT = os.getenv("REDIS_PORT")
 
 MODE = "TEST"
 # MODE = "PROD"
@@ -33,3 +37,7 @@ else:
 #     return create_engine(url)
 config_engine = create_engine(url)
 config_session = sessionmaker(config_engine, autoflush=False, autocommit=False)()
+
+def get_redis_con():
+    redis_con = redis.Redis(host=REDIS_HOST, port=REDIS_PORT)
+    return redis_con

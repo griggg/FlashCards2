@@ -42,6 +42,7 @@ services:
       - DB_TEST_HOST=test_db
       - REDIS_HOST=link_maker_redis
       - APP_HOST=0.0.0.0
+      - REDIS_PORT=6379
     volumes:
       - ./app:/app/app_volume
     ports:
